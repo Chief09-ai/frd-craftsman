@@ -14,63 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      frd_conversations: {
-        Row: {
-          constraints: string | null
-          created_at: string
-          generated_frd: string | null
-          id: string
-          key_features: string[] | null
-          problem_solved: string | null
-          product_description: string | null
-          product_goals: string[] | null
-          product_name: string | null
-          status: string | null
-          success_metrics: string | null
-          target_users: string | null
-          tech_stack: string | null
-          updated_at: string
-          user_id: string | null
-          user_journey: string | null
-        }
-        Insert: {
-          constraints?: string | null
-          created_at?: string
-          generated_frd?: string | null
-          id?: string
-          key_features?: string[] | null
-          problem_solved?: string | null
-          product_description?: string | null
-          product_goals?: string[] | null
-          product_name?: string | null
-          status?: string | null
-          success_metrics?: string | null
-          target_users?: string | null
-          tech_stack?: string | null
-          updated_at?: string
-          user_id?: string | null
-          user_journey?: string | null
-        }
-        Update: {
-          constraints?: string | null
-          created_at?: string
-          generated_frd?: string | null
-          id?: string
-          key_features?: string[] | null
-          problem_solved?: string | null
-          product_description?: string | null
-          product_goals?: string[] | null
-          product_name?: string | null
-          status?: string | null
-          success_metrics?: string | null
-          target_users?: string | null
-          tech_stack?: string | null
-          updated_at?: string
-          user_id?: string | null
-          user_journey?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never

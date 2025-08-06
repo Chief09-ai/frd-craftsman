@@ -1,4 +1,1 @@
 project_id = "lavphfdwptcywfldfwvv"
-
-[functions.generate-frd]
-verify_jwt = false
