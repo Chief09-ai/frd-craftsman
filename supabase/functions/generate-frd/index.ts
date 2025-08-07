@@ -55,13 +55,19 @@ User Journey: ${conversation.user_journey || 'Not specified'}
 Tech Stack: ${conversation.tech_stack || 'Not specified'}
 Constraints: ${conversation.constraints || 'Not specified'}
 Success Metrics: ${conversation.success_metrics || 'Not specified'}
+Product Stage: ${conversation.product_stage || 'Not specified'}
+Competitors & Differentiation: ${conversation.competitors || 'Not specified'}
+Target Platforms: ${conversation.platforms || 'Not specified'}
+Compliance Requirements: ${conversation.compliance || 'Not specified'}
+Timeline & Launch Goals: ${conversation.timeline || 'Not specified'}
+Additional Information: ${conversation.additional_info || 'Not specified'}
 
 Please generate a complete, professional FRD following this exact structure:
 
 **Functional Requirements Document**
 
 **1. Overview**  
-Summarize the product's purpose, scope, and background.
+Summarize the product's purpose, scope, background, current stage, and competitive landscape.
 
 **2. Stakeholders**  
 List key roles involved in the product and their responsibilities.
@@ -73,18 +79,18 @@ Break down each feature with use cases and expected behavior.
 Describe the user personas and how user personas interact with the product.
 
 **5. Non-Functional Requirements**  
-Include performance, scalability, security, compliance, etc.
+Include performance, scalability, security, compliance, platform requirements, etc.
 
 **6. Constraints & Assumptions**  
-Mention any limitations, dependencies, or external factors.
+Mention any limitations, dependencies, timeline constraints, or external factors.
 
 **7. Acceptance Criteria**  
 Define conditions under which each feature is considered complete.
 
 **8. Appendix**  
-Include glossary, references, or additional notes.
+Include glossary, references, additional information, or supplementary notes.
 
-Make it professional, detailed, and tailored for product managers. Use bullet points, clear headings, and industry best practices. If any information is missing, intelligently infer based on common industry practices.`;
+Make it professional, detailed, and tailored for product managers. Use bullet points, clear headings, and industry best practices. If any information is marked as "Not specified", intelligently infer based on common industry practices or omit if not relevant. Ensure all bold text uses proper **markdown formatting** for HTML rendering.`;
 
     // Call Gemini API
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {

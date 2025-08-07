@@ -16,6 +16,7 @@ interface Question {
   field: string;
   type: 'text' | 'textarea' | 'array';
   placeholder: string;
+  optional?: boolean;
 }
 
 const questions: Question[] = [
@@ -88,6 +89,54 @@ const questions: Question[] = [
     field: 'success_metrics',
     type: 'textarea',
     placeholder: 'e.g., User adoption rate, Task completion time, Team productivity increase'
+  },
+  {
+    id: '11',
+    question: 'What is your product\'s current stage?',
+    field: 'product_stage',
+    type: 'text',
+    placeholder: 'e.g., Idea, MVP, Beta, Live',
+    optional: true
+  },
+  {
+    id: '12',
+    question: 'Who are your competitors, and how is your product different?',
+    field: 'competitors',
+    type: 'textarea',
+    placeholder: 'e.g., Slack, Trello, Asana - We differentiate with AI-powered task prioritization',
+    optional: true
+  },
+  {
+    id: '13',
+    question: 'What platforms will your product support?',
+    field: 'platforms',
+    type: 'textarea',
+    placeholder: 'e.g., Web, iOS, Android',
+    optional: true
+  },
+  {
+    id: '14',
+    question: 'Are there any compliance or regulatory requirements?',
+    field: 'compliance',
+    type: 'textarea',
+    placeholder: 'e.g., GDPR, SOC 2, HIPAA compliance required',
+    optional: true
+  },
+  {
+    id: '15',
+    question: 'Do you have any timeline or launch goals?',
+    field: 'timeline',
+    type: 'textarea',
+    placeholder: 'e.g., MVP in 3 months, Public beta in 6 months',
+    optional: true
+  },
+  {
+    id: '16',
+    question: 'Is there anything else you\'d like to share about your product?',
+    field: 'additional_info',
+    type: 'textarea',
+    placeholder: 'Any other important details, special requirements, or context you\'d like to include',
+    optional: true
   }
 ];
 
@@ -131,6 +180,12 @@ export default function FRDGenerator() {
       setCurrentStep(prev => prev + 1);
     } else {
       await saveAndGenerate();
+    }
+  };
+
+  const handleSkip = () => {
+    if (currentQuestion?.optional && currentStep < questions.length - 1) {
+      setCurrentStep(prev => prev + 1);
     }
   };
 
@@ -264,9 +319,15 @@ export default function FRDGenerator() {
               </CardHeader>
               <CardContent>
                 <div className="prose max-w-none">
-                  <pre className="whitespace-pre-wrap text-sm text-foreground font-sans">
-                    {generatedFRD}
-                  </pre>
+                  <div 
+                    className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed"
+                    dangerouslySetInnerHTML={{
+                      __html: generatedFRD
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-foreground">$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+                        .replace(/\n/g, '<br>')
+                    }}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -313,26 +374,46 @@ export default function FRDGenerator() {
                   <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center mr-3 text-sm font-bold">
                     {currentStep + 1}
                   </div>
-                  {currentQuestion.question}
+                  <div>
+                    <span className="text-foreground">{currentQuestion.question}</span>
+                    {currentQuestion.optional && (
+                      <span className="text-sm text-muted-foreground ml-2 font-normal">(Optional - Skip if not applicable)</span>
+                    )}
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                <label className="sr-only" htmlFor={`question-${currentQuestion.id}`}>
+                  {currentQuestion.question}
+                </label>
                 {currentQuestion.type === 'textarea' ? (
                   <Textarea
+                    id={`question-${currentQuestion.id}`}
                     placeholder={currentQuestion.placeholder}
                     value={getCurrentValue()}
                     onChange={(e) => handleInputChange(e.target.value)}
-                    className="min-h-24"
+                    className="min-h-24 text-foreground"
+                  />
+                ) : currentQuestion.type === 'array' ? (
+                  <Textarea
+                    id={`question-${currentQuestion.id}`}
+                    placeholder={currentQuestion.placeholder}
+                    value={getCurrentValue()}
+                    onChange={(e) => handleInputChange(e.target.value)}
+                    className="min-h-24 text-foreground"
+                    aria-describedby={`help-${currentQuestion.id}`}
                   />
                 ) : (
                   <Input
+                    id={`question-${currentQuestion.id}`}
                     placeholder={currentQuestion.placeholder}
                     value={getCurrentValue()}
                     onChange={(e) => handleInputChange(e.target.value)}
+                    className="text-foreground"
                   />
                 )}
                 {currentQuestion.type === 'array' && (
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p id={`help-${currentQuestion.id}`} className="text-sm text-muted-foreground mt-2">
                     Enter each item on a new line
                   </p>
                 )}
@@ -341,28 +422,41 @@ export default function FRDGenerator() {
           )}
 
           {/* Navigation */}
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <Button
               variant="outline"
               onClick={handlePrevious}
               disabled={currentStep === 0}
+              className="flex items-center"
             >
               Previous
             </Button>
             
-            <Button
-              onClick={handleNext}
-              disabled={isGenerating || (currentQuestion && !getCurrentValue().trim())}
-              className="bg-primary hover:bg-primary-hover"
-            >
-              {isGenerating ? (
-                'Generating FRD...'
-              ) : currentStep === questions.length - 1 ? (
-                'Generate FRD'
-              ) : (
-                'Next'
+            <div className="flex gap-3">
+              {currentQuestion?.optional && (
+                <Button
+                  variant="ghost"
+                  onClick={handleSkip}
+                  disabled={isGenerating}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Skip
+                </Button>
               )}
-            </Button>
+              <Button
+                onClick={handleNext}
+                disabled={isGenerating || (currentQuestion && !currentQuestion.optional && !getCurrentValue().trim())}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                {isGenerating ? (
+                  'Generating FRD...'
+                ) : currentStep === questions.length - 1 ? (
+                  'Generate FRD'
+                ) : (
+                  'Next'
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Question List */}
