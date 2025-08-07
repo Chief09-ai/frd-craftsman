@@ -90,7 +90,7 @@ Define conditions under which each feature is considered complete.
 **8. Appendix**  
 Include glossary, references, additional information, or supplementary notes.
 
-Make it professional, detailed, and tailored for product managers. Use bullet points, clear headings, and industry best practices. If any information is marked as "Not specified", intelligently infer based on common industry practices or omit if not relevant. Ensure all bold text uses proper **markdown formatting** for HTML rendering.`;
+Make it professional, detailed, and tailored for product managers. Use clean formatting with proper headings and numbered/unnumbered lists. DO NOT use asterisk (*) bullet points - instead use proper numbered lists (1., 2., 3.) or dash-based lists (- item) for better readability. If any information is marked as "Not specified", intelligently infer based on common industry practices or omit if not relevant. Ensure all bold text uses proper **markdown formatting** for HTML rendering.`;
 
     // Call Gemini API
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
