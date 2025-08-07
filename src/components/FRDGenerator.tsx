@@ -323,6 +323,9 @@ export default function FRDGenerator() {
                     className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed"
                     dangerouslySetInnerHTML={{
                       __html: generatedFRD
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
                         .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-foreground">$1</strong>')
                         .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
                         .replace(/\n/g, '<br>')
