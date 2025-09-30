@@ -146,6 +146,7 @@ export default function FRDGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedFRD, setGeneratedFRD] = useState<string>('');
   const [conversationId, setConversationId] = useState<string>('');
+  const [showPreview, setShowPreview] = useState(false);
   const { toast } = useToast();
 
   const isWelcome = currentStep === -1;
@@ -179,7 +180,7 @@ export default function FRDGenerator() {
     if (currentStep < questions.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
-      await saveAndGenerate();
+      setShowPreview(true);
     }
   };
 
@@ -244,9 +245,187 @@ export default function FRDGenerator() {
     return currentQuestion.type === 'array' ? (value || []).join('\n') : (value || '');
   };
 
+  const handleEditFromPreview = (questionIndex: number) => {
+    setShowPreview(false);
+    setCurrentStep(questionIndex);
+  };
+
+  const handleGenerateFromPreview = async () => {
+    setShowPreview(false);
+    await saveAndGenerate();
+  };
+
+  const getAnsweredCount = () => {
+    return questions.filter(q => {
+      const value = responses[q.field];
+      return value && (Array.isArray(value) ? value.length > 0 : value.trim() !== '');
+    }).length;
+  };
+
+  // Preview Mode
+  if (showPreview) {
+    const answeredCount = getAnsweredCount();
+    const requiredQuestions = questions.filter(q => !q.optional);
+    const answeredRequired = requiredQuestions.filter(q => {
+      const value = responses[q.field];
+      return value && (Array.isArray(value) ? value.length > 0 : value.trim() !== '');
+    }).length;
+    const canGenerate = answeredRequired === requiredQuestions.length;
+
+    return (
+      <div className="min-h-screen bg-background py-8 animate-fade-in">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            {/* Preview Header */}
+            <div className="text-center mb-10 animate-slide-in-left">
+              <h1 className="text-4xl font-bold text-foreground mb-3">
+                Review Your Answers
+              </h1>
+              <p className="text-lg text-muted-foreground mb-6">
+                Make sure everything looks good before generating your FRD
+              </p>
+              <div className="flex justify-center gap-4">
+                <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
+                  {answeredCount} of {questions.length} answered
+                </Badge>
+                {canGenerate ? (
+                  <Badge className="bg-success/10 text-success border-success/20 px-4 py-2">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Ready to generate
+                  </Badge>
+                ) : (
+                  <Badge className="bg-destructive/10 text-destructive border-destructive/20 px-4 py-2">
+                    {requiredQuestions.length - answeredRequired} required questions missing
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* Required Questions */}
+            <div className="mb-8 animate-scale-in">
+              <h2 className="text-2xl font-bold text-foreground mb-4">Required Questions</h2>
+              <div className="space-y-4">
+                {requiredQuestions.map((q, index) => {
+                  const value = responses[q.field];
+                  const hasAnswer = value && (Array.isArray(value) ? value.length > 0 : value.trim() !== '');
+                  const actualIndex = questions.findIndex(question => question.id === q.id);
+                  
+                  return (
+                    <Card 
+                      key={q.id} 
+                      className={`border-2 transition-all hover:shadow-lg cursor-pointer ${
+                        hasAnswer ? 'border-primary/20' : 'border-destructive/20'
+                      }`}
+                      onClick={() => handleEditFromPreview(actualIndex)}
+                    >
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            {hasAnswer ? (
+                              <CheckCircle className="w-5 h-5 text-success" />
+                            ) : (
+                              <Circle className="w-5 h-5 text-destructive" />
+                            )}
+                            {q.question}
+                          </span>
+                          <Button variant="ghost" size="sm">
+                            Edit
+                          </Button>
+                        </CardTitle>
+                      </CardHeader>
+                      {hasAnswer && (
+                        <CardContent className="pt-0">
+                          <p className="text-sm text-muted-foreground">
+                            {Array.isArray(value) 
+                              ? value.join(', ') 
+                              : value.length > 150 
+                                ? value.substring(0, 150) + '...' 
+                                : value}
+                          </p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Optional Questions */}
+            {questions.some(q => q.optional) && (
+              <div className="mb-10 animate-scale-in" style={{ animationDelay: '0.1s' }}>
+                <h2 className="text-2xl font-bold text-foreground mb-4">Optional Questions</h2>
+                <div className="space-y-4">
+                  {questions.filter(q => q.optional).map(q => {
+                    const value = responses[q.field];
+                    const hasAnswer = value && (Array.isArray(value) ? value.length > 0 : value.trim() !== '');
+                    const actualIndex = questions.findIndex(question => question.id === q.id);
+                    
+                    return (
+                      <Card 
+                        key={q.id} 
+                        className="border-2 border-muted transition-all hover:shadow-lg cursor-pointer"
+                        onClick={() => handleEditFromPreview(actualIndex)}
+                      >
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                              {hasAnswer ? (
+                                <CheckCircle className="w-5 h-5 text-success" />
+                              ) : (
+                                <Circle className="w-5 h-5 text-muted-foreground" />
+                              )}
+                              {q.question}
+                            </span>
+                            <Button variant="ghost" size="sm">
+                              {hasAnswer ? 'Edit' : 'Add'}
+                            </Button>
+                          </CardTitle>
+                        </CardHeader>
+                        {hasAnswer && (
+                          <CardContent className="pt-0">
+                            <p className="text-sm text-muted-foreground">
+                              {Array.isArray(value) 
+                                ? value.join(', ') 
+                                : value.length > 150 
+                                  ? value.substring(0, 150) + '...' 
+                                  : value}
+                            </p>
+                          </CardContent>
+                        )}
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center mt-10 animate-slide-in-right">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowPreview(false)}
+              >
+                Back to Questions
+              </Button>
+              <Button
+                size="lg"
+                onClick={handleGenerateFromPreview}
+                disabled={!canGenerate || isGenerating}
+                className="min-w-[200px]"
+              >
+                {isGenerating ? 'Generating FRD...' : 'Generate FRD'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isWelcome || currentStep === -1) {
     return (
-      <div className="min-h-screen" style={{ background: 'var(--gradient-hero)' }}>
+      <div className="min-h-screen animate-fade-in" style={{ background: 'var(--gradient-hero)' }}>
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto text-center">
             <div className="mb-8 relative group">
@@ -292,10 +471,10 @@ export default function FRDGenerator() {
 
   if (isComplete && generatedFRD) {
     return (
-      <div className="min-h-screen bg-background py-12">
+      <div className="min-h-screen bg-background py-12 animate-fade-in">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-10">
+            <div className="text-center mb-10 animate-bounce-in">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: 'var(--gradient-primary)' }}>
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
@@ -363,7 +542,7 @@ export default function FRDGenerator() {
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           {/* Progress Header */}
-          <div className="mb-10">
+          <div className="mb-10 animate-slide-in-left">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Get Your FRD</h1>
               <Badge className="bg-primary/10 text-primary border-primary/20 font-semibold">
@@ -375,7 +554,7 @@ export default function FRDGenerator() {
 
           {/* Question Card */}
           {currentQuestion && (
-            <Card className="border-2 mb-8" style={{ boxShadow: 'var(--shadow-medium)' }}>
+            <Card className="border-2 mb-8 animate-scale-in" style={{ boxShadow: 'var(--shadow-medium)' }}>
               <CardHeader className="bg-gradient-to-r from-background to-secondary/30">
                 <CardTitle className="flex items-center">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center mr-4 text-sm font-bold shadow-md" style={{ background: 'var(--gradient-primary)', color: 'white' }}>
@@ -399,7 +578,7 @@ export default function FRDGenerator() {
                     placeholder={currentQuestion.placeholder}
                     value={getCurrentValue()}
                     onChange={(e) => handleInputChange(e.target.value)}
-                    className="min-h-24 text-foreground"
+                    className="min-h-24 text-foreground transition-all focus:scale-[1.01]"
                   />
                 ) : currentQuestion.type === 'array' ? (
                   <Textarea
@@ -407,7 +586,7 @@ export default function FRDGenerator() {
                     placeholder={currentQuestion.placeholder}
                     value={getCurrentValue()}
                     onChange={(e) => handleInputChange(e.target.value)}
-                    className="min-h-24 text-foreground"
+                    className="min-h-24 text-foreground transition-all focus:scale-[1.01]"
                     aria-describedby={`help-${currentQuestion.id}`}
                   />
                 ) : (
@@ -416,7 +595,7 @@ export default function FRDGenerator() {
                     placeholder={currentQuestion.placeholder}
                     value={getCurrentValue()}
                     onChange={(e) => handleInputChange(e.target.value)}
-                    className="text-foreground"
+                    className="text-foreground transition-all focus:scale-[1.01]"
                   />
                 )}
                 {currentQuestion.type === 'array' && (
@@ -455,11 +634,12 @@ export default function FRDGenerator() {
                 onClick={handleNext}
                 disabled={isGenerating || (currentQuestion && !currentQuestion.optional && !getCurrentValue().trim())}
                 size="lg"
+                className="transition-all hover:scale-105"
               >
                 {isGenerating ? (
                   'Generating FRD...'
                 ) : currentStep === questions.length - 1 ? (
-                  'Generate FRD'
+                  'Review & Generate'
                 ) : (
                   'Next'
                 )}
