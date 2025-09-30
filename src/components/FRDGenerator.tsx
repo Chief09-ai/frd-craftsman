@@ -246,33 +246,34 @@ export default function FRDGenerator() {
 
   if (isWelcome || currentStep === -1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
+      <div className="min-h-screen" style={{ background: 'var(--gradient-hero)' }}>
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-8">
+            <div className="mb-8 relative group">
+              <div className="absolute -inset-1 rounded-xl opacity-25 blur-xl transition group-hover:opacity-40" style={{ background: 'var(--gradient-primary)' }} />
               <img 
                 src={heroImage} 
                 alt="FRD Generator" 
-                className="w-full h-64 object-cover rounded-xl shadow-lg"
+                className="relative w-full h-64 object-cover rounded-xl shadow-2xl"
               />
             </div>
-            <h1 className="text-5xl font-bold text-foreground mb-6">
-              Get Your <span className="text-primary">FRD</span>
+            <h1 className="text-6xl font-bold text-foreground mb-6">
+              Get Your <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FRD</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
               Guide your product through a conversational flow to generate a complete, 
               professional Functional Requirements Document. Perfect for product analysts and managers.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <Badge variant="secondary" className="text-sm px-3 py-1">
+            <div className="flex flex-wrap justify-center gap-4 mb-10">
+              <Badge className="text-sm px-4 py-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
                 <FileText className="w-4 h-4 mr-2" />
                 Professional FRDs
               </Badge>
-              <Badge variant="secondary" className="text-sm px-3 py-1">
+              <Badge className="text-sm px-4 py-2 bg-accent/10 text-accent border-accent/20 hover:bg-accent/20">
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Conversational Flow
               </Badge>
-              <Badge variant="secondary" className="text-sm px-3 py-1">
+              <Badge className="text-sm px-4 py-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
                 <Sparkles className="w-4 h-4 mr-2" />
                 AI-Powered
               </Badge>
@@ -280,7 +281,6 @@ export default function FRDGenerator() {
             <Button 
               size="lg" 
               onClick={handleStart}
-              className="bg-primary hover:bg-primary-hover text-primary-foreground px-8 py-3 text-lg"
             >
               Start Creating Your FRD
             </Button>
@@ -292,32 +292,35 @@ export default function FRDGenerator() {
 
   if (isComplete && generatedFRD) {
     return (
-      <div className="min-h-screen bg-background py-8">
+      <div className="min-h-screen bg-background py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-foreground mb-4">
-                <CheckCircle className="w-8 h-8 text-success inline-block mr-3" />
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: 'var(--gradient-primary)' }}>
+                <CheckCircle className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-4xl font-bold text-foreground mb-3">
                 Your FRD is Ready!
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-lg text-muted-foreground">
                 You can copy it, export it, or refine it further.
               </p>
             </div>
             
-            <Card className="shadow-large">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Functional Requirements Document</span>
+            <Card className="border-2" style={{ boxShadow: 'var(--shadow-large)' }}>
+              <CardHeader className="border-b bg-gradient-to-r from-background to-secondary/30">
+                <CardTitle className="flex items-center justify-between text-lg">
+                  <span className="text-foreground font-bold">Functional Requirements Document</span>
                   <Button
                     onClick={() => navigator.clipboard.writeText(generatedFRD)}
                     variant="outline"
+                    size="sm"
                   >
                     Copy to Clipboard
                   </Button>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="prose max-w-none">
                   <div 
                     className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed"
@@ -335,7 +338,7 @@ export default function FRDGenerator() {
               </CardContent>
             </Card>
 
-            <div className="text-center mt-8">
+            <div className="text-center mt-10">
               <Button 
                 onClick={() => {
                   setCurrentStep(-1);
@@ -344,6 +347,7 @@ export default function FRDGenerator() {
                   setConversationId('');
                 }}
                 variant="outline"
+                size="lg"
               >
                 Create Another FRD
               </Button>
@@ -359,33 +363,33 @@ export default function FRDGenerator() {
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           {/* Progress Header */}
-          <div className="mb-8">
+          <div className="mb-10">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-2xl font-bold text-foreground">Get Your FRD</h1>
-              <Badge variant="outline">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Get Your FRD</h1>
+              <Badge className="bg-primary/10 text-primary border-primary/20 font-semibold">
                 Question {currentStep + 1} of {questions.length}
               </Badge>
             </div>
-            <Progress value={progress} className="h-2" />
+            <Progress value={progress} className="h-3 bg-secondary" />
           </div>
 
           {/* Question Card */}
           {currentQuestion && (
-            <Card className="shadow-medium mb-8">
-              <CardHeader>
+            <Card className="border-2 mb-8" style={{ boxShadow: 'var(--shadow-medium)' }}>
+              <CardHeader className="bg-gradient-to-r from-background to-secondary/30">
                 <CardTitle className="flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center mr-3 text-sm font-bold">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center mr-4 text-sm font-bold shadow-md" style={{ background: 'var(--gradient-primary)', color: 'white' }}>
                     {currentStep + 1}
                   </div>
                   <div>
-                    <span className="text-foreground">{currentQuestion.question}</span>
+                    <span className="text-foreground font-semibold">{currentQuestion.question}</span>
                     {currentQuestion.optional && (
                       <span className="text-sm text-muted-foreground ml-2 font-normal">(Optional - Skip if not applicable)</span>
                     )}
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <label className="sr-only" htmlFor={`question-${currentQuestion.id}`}>
                   {currentQuestion.question}
                 </label>
@@ -431,6 +435,7 @@ export default function FRDGenerator() {
               onClick={handlePrevious}
               disabled={currentStep === 0}
               className="flex items-center"
+              size="lg"
             >
               Previous
             </Button>
@@ -441,7 +446,7 @@ export default function FRDGenerator() {
                   variant="ghost"
                   onClick={handleSkip}
                   disabled={isGenerating}
-                  className="text-muted-foreground hover:text-foreground"
+                  size="lg"
                 >
                   Skip
                 </Button>
@@ -449,7 +454,7 @@ export default function FRDGenerator() {
               <Button
                 onClick={handleNext}
                 disabled={isGenerating || (currentQuestion && !currentQuestion.optional && !getCurrentValue().trim())}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                size="lg"
               >
                 {isGenerating ? (
                   'Generating FRD...'
@@ -463,23 +468,23 @@ export default function FRDGenerator() {
           </div>
 
           {/* Question List */}
-          <Card className="mt-8 shadow-soft">
-            <CardHeader>
-              <CardTitle className="text-lg">Progress Overview</CardTitle>
+          <Card className="mt-10 border-2" style={{ boxShadow: 'var(--shadow-soft)' }}>
+            <CardHeader className="bg-gradient-to-r from-background to-secondary/30">
+              <CardTitle className="text-lg font-bold text-foreground">Progress Overview</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent className="pt-6">
+              <div className="space-y-3">
                 {questions.map((q, index) => (
-                  <div key={q.id} className="flex items-center space-x-3">
+                  <div key={q.id} className="flex items-center space-x-3 p-2 rounded-lg transition-colors hover:bg-secondary/50">
                     {index < currentStep ? (
-                      <CheckCircle className="w-5 h-5 text-success" />
+                      <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
                     ) : index === currentStep ? (
-                      <Circle className="w-5 h-5 text-primary" />
+                      <Circle className="w-5 h-5 text-primary flex-shrink-0 fill-primary" />
                     ) : (
-                      <Circle className="w-5 h-5 text-muted-foreground" />
+                      <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                     )}
                     <span className={`text-sm ${
-                      index <= currentStep ? 'text-foreground' : 'text-muted-foreground'
+                      index <= currentStep ? 'text-foreground font-medium' : 'text-muted-foreground'
                     }`}>
                       {q.question}
                     </span>
